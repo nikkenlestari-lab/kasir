@@ -55,57 +55,59 @@ public function held()
 
     return view('kasir.held', compact('heldTransactions'));
 }
-    public function store(Request $request)
-    {
-        $data = $request->validate([
-            'cart' => 'required|array|min:1',
-            'cart.*.code' => 'required',
-            'cart.*.name' => 'required',
-            'cart.*.price' => 'required|numeric',
-            'cart.*.qty' => 'required|integer|min:1',
-            'subtotal' => 'required|numeric',
-            'discount' => 'required|numeric',
-            'tax' => 'required|numeric',
-            'fee' => 'required|numeric',
-            'grand_total' => 'required|numeric',
-            'payment' => 'required|numeric',
-            'change' => 'required|numeric',
-            'payment_method' => 'required',
+   public function store(Request $request)
+{
+    $data = $request->validate([
+        'cart' => 'required|array|min:1',
+        'cart.*.code' => 'required',
+        'cart.*.name' => 'required',
+        'cart.*.price' => 'required|numeric',
+        'cart.*.qty' => 'required|integer|min:1',
+        'subtotal' => 'required|numeric',
+        'discount' => 'required|numeric',
+        'tax' => 'required|numeric',
+        'fee' => 'required|numeric',
+        'grand_total' => 'required|numeric',
+        'payment' => 'required|numeric',
+        'change' => 'required|numeric',
+        'payment_method' => 'required',
+    ]);
+
+    $transaction = DB::transaction(function () use ($data) {
+
+        $transaction = Transaction::create([
+            'transaction_number' => 'TRX-' . now()->format('YmdHisv'),
+            'subtotal' => $data['subtotal'],
+            'discount' => $data['discount'],
+            'tax' => $data['tax'],
+            'fee' => $data['fee'],
+            'grand_total' => $data['grand_total'],
+            'payment' => $data['payment'],
+            'change' => $data['change'],
+            'payment_method' => $data['payment_method'],
+            'cashier' => 'Admin',
+            'customer' => null,
         ]);
 
-        $transaction = DB::transaction(function () use ($data) {
-            $transaction = Transaction::create([
-                'transaction_number' => 'TRX-' . now()->format('YmdHisv'),
-                'subtotal' => $data['subtotal'],
-                'discount' => $data['discount'],
-                'tax' => $data['tax'],
-                'fee' => $data['fee'],
-                'grand_total' => $data['grand_total'],
-                'payment' => $data['payment'],
-                'change' => $data['change'],
-                'payment_method' => $data['payment_method'],
-                'cashier' => 'Admin',
-                'customer' => null,
-
+        foreach ($data['cart'] as $item) {
+            $transaction->details()->create([
+                'product_code' => $item['code'],
+                'product_name' => $item['name'],
+                'price' => $item['price'],
+                'qty' => $item['qty'],
+                'subtotal' => $item['price'] * $item['qty'],
             ]);
+        }
 
-            foreach ($data['cart'] as $item) {
-                $transaction->details()->create([
-                    'product_code' => $item['code'],
-                    'product_name' => $item['name'],
-                    'price' => $item['price'],
-                    'qty' => $item['qty'],
-                    'subtotal' => $item['price'] * $item['qty'],
-                ]);
-            }
-        });
+        return $transaction;
+    });
 
-        return response()->json([
+    return response()->json([
         'success' => true,
         'message' => 'Pembayaran berhasil disimpan!',
         'transaction_id' => $transaction->id,
     ]);
-    }
+}
 public function continueHeld($id)
 {
     $held = \App\Models\HeldTransaction::findOrFail($id);
