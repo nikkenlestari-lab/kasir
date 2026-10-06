@@ -119,7 +119,10 @@ public function continueHeld($id)
 
     $held->delete();
 
+    $products = \App\Models\Product::all();
+
     return view('kasir.index', [
+        'products' => $products,
         'heldCart' => $cart,
     ]);
 }

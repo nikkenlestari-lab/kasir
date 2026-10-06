@@ -21,6 +21,11 @@
                                 {{ __('Produk') }}
                             </x-nav-link>
                         @endif
+                         @if(Auth::user()->role === 'kasir')
+                            <x-nav-link :href="route('kasir.index')" :active="request()->routeIs('kasir.*')">
+                                {{ __('Transaksi') }}
+                            </x-nav-link>
+                            @endif
                     @endauth
                 </div>
             </div>

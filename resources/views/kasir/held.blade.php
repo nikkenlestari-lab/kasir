@@ -101,7 +101,7 @@
                 </span>
             </div>
 
-            <a href="{{ route('kasir.continue', $transaction->id) }}" class="btn">
+            <a href="{{ route('kasir.continueHeld', $transaction->id) }}" class="btn">
     Lanjutkan
 </a>
 

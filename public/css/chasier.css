@@ -1,0 +1,198 @@
+<style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f6f8;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+        }
+
+        .transaction-info {
+            text-align: right;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .main {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        .btn {
+            border: none;
+            padding: 12px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-search {
+            background: #2563eb;
+            color: white;
+        }
+
+        .cart-title {
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 8px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+        }
+
+        th {
+            background: #f8f9fa;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 50px 10px;
+            color: #888;
+        }
+
+        .summary-title {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .summary-row.total {
+            border-top: 2px solid #ddd;
+            padding-top: 15px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .payment-input {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 18px;
+            margin-top: 8px;
+            margin-bottom: 15px;
+        }
+
+        .change {
+            background: #ecfdf5;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .payment-method {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .payment-method button {
+            padding: 12px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .payment-method button.active {
+            background: #2563eb;
+            color: white;
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .btn-pay {
+            grid-column: span 2;
+            background: #16a34a;
+            color: white;
+        }
+
+        .btn-hold {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-cancel {
+            background: #dc2626;
+            color: white;
+        }
+
+        @media (max-width: 900px) {
+            .main {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+
+            .transaction-info {
+                text-align: left;
+            }
+        }
+    </style>
