@@ -5,13 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\Product;
 
 class KasirController extends Controller
 {
     public function index()
-    {
-        return view('kasir.index');
-    }
+{
+    $products = Product::latest()->get();
+
+    return view('kasir.index', compact('products'));
+}
 
     public function struk($id)
 {
@@ -39,7 +42,7 @@ public function hold(Request $request)
         'tax' => $data['tax'],
         'fee' => $data['fee'],
         'grand_total' => $data['grand_total'],
-        'cashier' => 'Admin',
+        'cashier' => auth()->user()->name,
     ]);
 
     return response()->json([
@@ -85,7 +88,7 @@ public function held()
             'payment' => $data['payment'],
             'change' => $data['change'],
             'payment_method' => $data['payment_method'],
-            'cashier' => 'Admin',
+            'cashier' => auth()->user()->name,
             'customer' => null,
         ]);
 

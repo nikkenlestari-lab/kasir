@@ -391,45 +391,9 @@
 </div>
 
 <script>
-    const products = [
-        {
-            id: 1,
-            code: 'P001',
-            name: 'Indomie Goreng',
-            price: 3500
-        },
-        {
-            id: 2,
-            code: 'P002',
-            name: 'Aqua 600ml',
-            price: 4000
-        },
-        {
-            id: 3,
-            code: 'P003',
-            name: 'Teh Botol Sosro',
-            price: 5000
-        },
-        {
-            id: 4,
-            code: 'P004',
-            name: 'Beras 5 Kg',
-            price: 75000
-        },
-        {
-            id: 5,
-            code: 'P005',
-            name: 'Minyak Goreng 1 Liter',
-            price: 18000
-        },
-        {
-            id: 6,
-            code: 'P006',
-            name: 'Gula Pasir 1 Kg',
-            price: 17000
-        }
-    ];
 
+    const products = @json($products);
+    
     let cart = @json($heldCart ?? []);
 
     function rupiah(number) {
@@ -726,7 +690,7 @@
                     alert(data.message);
 
                     window.location.href =
-                        '/struk/' + data.transaction_id;
+                        '/transaksi/' + data.transaction_id + '/struk';
                 }
             })
             .catch(error => {

@@ -1,18 +1,68 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\KasirController;
+use App\Http\Controllers\ProductController;
 
-Route::get('/', [KasirController::class, 'index'])->name('kasir.index');
+// Halaman awal
+Route::get('/', function () {
+    return view('welcome');
+});
 
-Route::post('/transaksi', [KasirController::class, 'store'])->name('kasir.store');
+// Dashboard umum setelah login
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/struk/{id}', [KasirController::class, 'struk'])->name('kasir.struk');
+// Dashboard Admin
+Route::get('/admin/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'role:admin'])->name('admin.dashboard');
 
-Route::post('/transaksi/hold', [KasirController::class, 'hold'])->name('kasir.hold');
+// Dashboard Kasir
+Route::get('/kasir/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'role:kasir'])->name('kasir.dashboard');
 
-Route::get('/transaksi/ditahan', [KasirController::class, 'held'])->name('kasir.held');
+Route::get('/transaksi', [KasirController::class, 'index'])
+    ->middleware(['auth', 'role:admin,kasir'])
+    ->name('kasir.index');
 
-Route::get('/transaksi/ditahan/{id}/lanjutkan', [KasirController::class, 'continueHeld'])->name('kasir.continue');
+    Route::post('/transaksi', [KasirController::class, 'store'])
+    ->middleware(['auth', 'role:admin,kasir'])
+    ->name('kasir.store');
 
-Route::get('/transaksi/riwayat', [KasirController::class, 'history'])->name('kasir.history');
+    Route::post('/transaksi/hold', [KasirController::class, 'hold'])
+    ->middleware(['auth', 'role:admin,kasir'])
+    ->name('kasir.hold');
+
+    Route::get('/transaksi/ditahan', [KasirController::class, 'held'])
+    ->middleware(['auth', 'role:admin,kasir'])
+    ->name('kasir.held');
+
+    Route::get('/transaksi/ditahan/{id}', [KasirController::class, 'continueHeld'])
+    ->middleware(['auth', 'role:admin,kasir'])
+    ->name('kasir.continueHeld');
+
+    Route::get('/transaksi/riwayat', [KasirController::class, 'history'])
+    ->middleware(['auth', 'role:admin,kasir'])
+    ->name('kasir.history');
+
+    Route::get('/transaksi/{id}/struk', [KasirController::class, 'struk'])
+    ->middleware(['auth', 'role:admin,kasir'])
+    ->name('kasir.struk');
+
+    // Produk - Admin
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::resource('products', ProductController::class);
+});
+
+// Profile
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+require __DIR__.'/auth.php';
