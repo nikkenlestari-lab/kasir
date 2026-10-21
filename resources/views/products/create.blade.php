@@ -69,7 +69,7 @@
         </div>
     @endif
 
-    <form action="{{ route('products.store') }}" method="POST">
+    <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
 
         @csrf
 
@@ -95,6 +95,13 @@
             name="price"
             placeholder="Harga produk"
             value="{{ old('price') }}"
+        >
+
+        <label>Gambar Produk</label>
+        <input
+            type="file"
+            name="image"
+            accept="image/jpeg,image/png,image/webp"
         >
 
         <button type="submit">Simpan Produk</button>

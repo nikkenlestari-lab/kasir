@@ -71,6 +71,13 @@
         form {
             display: inline;
         }
+
+        .product-image {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 8px;
+}
     </style>
 </head>
 
@@ -98,6 +105,7 @@
         <thead>
             <tr>
                 <th>No</th>
+                <th>Gambar</th>
                 <th>Kode</th>
                 <th>Nama Produk</th>
                 <th>Harga</th>
@@ -106,9 +114,20 @@
         </thead>
 
         <tbody>
-            @forelse($products as $product)
+                        @forelse($products as $product)
                 <tr>
                     <td>{{ $loop->iteration }}</td>
+                    <td>
+                        @if($product->image)
+                            <img
+                                src="{{ asset('storage/' . $product->image) }}"
+                                alt="{{ $product->name }}"
+                                class="product-image"
+                            >
+                        @else
+                            Belum ada gambar
+                        @endif
+                    </td>
                     <td>{{ $product->code }}</td>
                     <td>{{ $product->name }}</td>
                     <td>Rp {{ number_format($product->price, 0, ',', '.') }}</td>
@@ -140,7 +159,7 @@
 
             @empty
                 <tr>
-                    <td colspan="5" style="text-align:center;">
+                    <td colspan="6" style="text-align:center;">
                         Belum ada produk.
                     </td>
                 </tr>
