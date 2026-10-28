@@ -65,4 +65,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+Route::get(
+    '/transaksi/{id}/invoice-pdf',
+    [KasirController::class, 'invoicePdf']
+)->name('kasir.invoice.pdf');
+
 require __DIR__.'/auth.php';

@@ -6,6 +6,7 @@ use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Product;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class KasirController extends Controller
 {
@@ -21,6 +22,20 @@ class KasirController extends Controller
     $transaction = Transaction::with('details')->findOrFail($id);
 
     return view('kasir.struk', compact('transaction'));
+}
+
+public function invoicePdf($id)
+{
+    $transaction = Transaction::with('details')->findOrFail($id);
+
+    $pdf = Pdf::loadView(
+        'invoices.invoice',
+        compact('transaction')
+    );
+
+    return $pdf->download(
+        'invoice-' . $transaction->transaction_number . '.pdf'
+    );
 }
 
 public function hold(Request $request)
