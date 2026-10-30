@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Product;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Events\OrderPlaced;
 
 class KasirController extends Controller
 {
@@ -119,6 +120,8 @@ public function held()
 
         return $transaction;
     });
+
+    event(new OrderPlaced($transaction, auth()->user()));
 
     return response()->json([
         'success' => true,
