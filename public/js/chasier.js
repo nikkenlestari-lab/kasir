@@ -225,58 +225,64 @@
         });
     });
 
-    document
-        .querySelector('.btn-pay')
-        .addEventListener('click', function() {
+ 
+document
+    .querySelector('.btn-pay')
+    .addEventListener('click', function() {
 
-            const payment =
-                Number(document.getElementById('payment').value) || 0;
+        if (cart.length === 0) {
+            alert('Keranjang masih kosong!');
+            return;
+        }
 
-            let subtotal = 0;
+        let subtotal = 0;
 
-            cart.forEach(item => {
-                subtotal += item.price * item.qty;
-            });
+        cart.forEach(item => {
+            subtotal += item.price * item.qty;
+        });
 
-            const discount =
-                Number(document.getElementById('discountInput').value) || 0;
+        const payment =
+            Number(document.getElementById('payment').value) || 0;
 
-            const taxPercent =
-                Number(document.getElementById('taxInput').value) || 0;
+        const discount =
+            Number(document.getElementById('discountInput').value) || 0;
 
-            const fee =
-                Number(document.getElementById('feeInput').value) || 0;
+        const taxPercent =
+            Number(document.getElementById('taxInput').value) || 0;
 
-            const tax = subtotal * taxPercent / 100;
+        const fee =
+            Number(document.getElementById('feeInput').value) || 0;
 
-            const grandTotal =
-                subtotal - discount + tax + fee;
+        const tax = subtotal * taxPercent / 100;
 
-            const change = payment - grandTotal;
+        const grandTotal =
+            subtotal - discount + tax + fee;
 
-            if (cart.length === 0) {
-                alert('Keranjang masih kosong!');
-                return;
-            }
+        const change = payment - grandTotal;
+
+        const activeMethod =
+            document.querySelector('.payment-method button.active');
+
+        const paymentMethod =
+            activeMethod ? activeMethod.innerText.trim() : 'Tunai';
+
+        const csrfToken = document
+            .querySelector('meta[name="csrf-token"]')
+            .getAttribute('content');
+
+        // PEMBAYARAN TUNAI
+        if (paymentMethod.toLowerCase() === 'tunai') {
 
             if (payment < grandTotal) {
                 alert('Pembayaran belum cukup!');
                 return;
             }
 
-            const activeMethod =
-                document.querySelector('.payment-method button.active');
-
-            const paymentMethod =
-                activeMethod ? activeMethod.innerText : 'Tunai';
-
             fetch('/transaksi', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document
-                        .querySelector('meta[name="csrf-token"]')
-                        .getAttribute('content')
+                    'X-CSRF-TOKEN': csrfToken
                 },
                 body: JSON.stringify({
                     cart: cart,
@@ -296,133 +302,77 @@
                     alert(data.message);
 
                     window.location.href =
-                        '/transaksi/' + data.transaction_id + '/struk';
+                        '/transaksi/' + data.transaction_id + '/invoice-pdf';
+                } else {
+                    alert(data.message || 'Transaksi gagal disimpan.');
                 }
             })
             .catch(error => {
                 console.error(error);
                 alert('Terjadi kesalahan saat menyimpan transaksi.');
             });
-        });
 
-    document
-        .querySelector('.btn-hold')
-        .addEventListener('click', function() {
+            return;
+        }
 
-            if (cart.length === 0) {
-                alert('Keranjang masih kosong!');
-                return;
-            }
+        // PEMBAYARAN MELALUI MIDTRANS
+        if (!window.snap) {
+            alert('Midtrans Snap belum berhasil dimuat.');
+            return;
+        }
 
-            let subtotal = 0;
-
-            cart.forEach(item => {
-                subtotal += item.price * item.qty;
-            });
-
-            const discount =
-                Number(document.getElementById('discountInput').value) || 0;
-
-            const taxPercent =
-                Number(document.getElementById('taxInput').value) || 0;
-
-            const fee =
-                Number(document.getElementById('feeInput').value) || 0;
-
-            const tax = subtotal * taxPercent / 100;
-
-            const grandTotal =
-                subtotal - discount + tax + fee;
-
-            fetch('/transaksi/hold', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document
-                        .querySelector('meta[name="csrf-token"]')
-                        .getAttribute('content')
-                },
-                body: JSON.stringify({
-                    cart: cart,
-                    subtotal: subtotal,
-                    discount: discount,
-                    tax: tax,
-                    fee: fee,
-                    grand_total: grandTotal
-                })
+        fetch('/checkout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            body: JSON.stringify({
+                cart: cart,
+                discount: discount,
+                tax: tax,
+                fee: fee
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert(data.message);
+        })
+        .then(async response => {
+            const data = await response.json();
 
-                    cart = [];
-                    renderCart();
-
-                    document.getElementById('payment').value = '';
-                    document.getElementById('change').innerText = 'Rp 0';
-                    document.getElementById('paymentStatus').innerText = '-';
-                }
-            })
-            .catch(error => {
-                console.error(error);
-                alert('Terjadi kesalahan saat menahan transaksi.');
-            });
-        });
-
-    document
-        .querySelector('.btn-cancel')
-        .addEventListener('click', function() {
-
-            if (cart.length === 0) {
-                alert('Keranjang sudah kosong!');
-                return;
+            if (!response.ok) {
+                throw new Error(data.message || 'Checkout gagal.');
             }
 
-            const confirmCancel =
-                confirm('Yakin ingin membatalkan transaksi?');
+            return data;
+        })
+        .then(data => {
+            if (data.success && data.snap_token) {
 
-            if (confirmCancel) {
-                cart = [];
-                renderCart();
+                window.snap.pay(data.snap_token, {
+                    onSuccess: function(result) {
+                        alert('Pembayaran berhasil!');
 
-                document.getElementById('payment').value = '';
-                document.getElementById('change').innerText = 'Rp 0';
-                document.getElementById('paymentStatus').innerText = '-';
+                        window.location.href =
+                            '/transaksi/' + data.transaction_id + '/invoice-pdf';
+                    },
 
-                alert('Transaksi berhasil dibatalkan!');
+                    onPending: function(result) {
+                        alert('Pembayaran masih menunggu konfirmasi.');
+                    },
+
+                    onError: function(result) {
+                        alert('Pembayaran gagal!');
+                    },
+
+                    onClose: function() {
+                        alert('Jendela pembayaran ditutup.');
+                    }
+                });
+
+            } else {
+                alert('Gagal mendapatkan Snap Token.');
             }
+        })
+        .catch(error => {
+            console.error(error);
+            alert(error.message || 'Terjadi kesalahan saat checkout.');
         });
-
-    function setPayment(amount) {
-        document.getElementById('payment').value = amount;
-        calculateTotal();
-    }
-
-    function setPaymentExact() {
-        let subtotal = 0;
-
-        cart.forEach(item => {
-            subtotal += item.price * item.qty;
-        });
-
-        const discount =
-            Number(document.getElementById('discountInput').value) || 0;
-
-        const taxPercent =
-            Number(document.getElementById('taxInput').value) || 0;
-
-        const fee =
-            Number(document.getElementById('feeInput').value) || 0;
-
-        const tax = subtotal * taxPercent / 100;
-
-        const grandTotal =
-            subtotal - discount + tax + fee;
-
-        document.getElementById('payment').value = grandTotal;
-
-        calculateTotal();
-    }
-
-    renderCart();
+    });

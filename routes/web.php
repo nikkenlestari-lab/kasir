@@ -4,6 +4,8 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\KasirController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ReceiptController;
+use App\Http\Controllers\MidtransController;
 
 // Halaman awal
 Route::get('/', function () {
@@ -69,5 +71,13 @@ Route::get(
     '/transaksi/{id}/invoice-pdf',
     [KasirController::class, 'invoicePdf']
 )->name('kasir.invoice.pdf');
+
+Route::get('/print-receipt', [ReceiptController::class, 'printReceipt']);
+
+Route::post('/checkout', [MidtransController::class, 'checkout'])
+    ->middleware(['auth', 'role:admin,kasir']);
+
+Route::post('/midtrans/notification', [MidtransController::class, 'notification'])
+    ->middleware(['auth', 'role:admin,kasir']);
 
 require __DIR__.'/auth.php';

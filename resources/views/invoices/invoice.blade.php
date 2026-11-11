@@ -15,11 +15,13 @@
 </head>
 <body>
     <div class="header">
-        <h2>INVOICE</h2>
-        <p>No: {{ $transaction->transaction_number }}</p>
-        <p>Tanggal: {{ $transaction->created_at->format('d/m/Y') }}</p>
-        <p>Kasir: {{ $transaction->cashier }}</p>
-        <p>Metode Pembayaran: {{ $transaction->payment_method }}</p>
+    <h2>KOPI KITA</h2>
+    <h3>STRUK PEMBAYARAN</h3>
+
+    <p>No: {{ $transaction->transaction_number }}</p>
+    <p>Tanggal: {{ $transaction->created_at->format('d/m/Y H:i:s') }}</p>
+    <p>Kasir: {{ $transaction->cashier }}</p>
+    <p>Metode Pembayaran: {{ $transaction->payment_method }}</p>
     </div>
 
     <table class="table">

@@ -196,6 +196,11 @@
     window.heldCart = @json($heldCart ?? []);
 </script>
 
+<script
+    src="https://app.sandbox.midtrans.com/snap/snap.js"
+    data-client-key="{{ config('midtrans.clientKey') }}">
+</script>
+
 <script src="{{ url(asset('js/chasier.js')) }}"></script>
 
 </body>
